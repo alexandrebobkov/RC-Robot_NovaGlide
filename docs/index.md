@@ -10,9 +10,11 @@ A modular robot control system for ESP32-C3 with wireless control (ESP-NOW), tel
 
 [Prime Release](/01-06-2026/first-release.html)
 
-[first release]({% post_url 2026-01-06-first-release %})!
+[first release]({% post_url 2026-01-06-first-release %})
 
-[schematic]({% post_url 2026-01-06-hardware %})!
+[schematic]({% post_url 2026-01-06-hardware %})
+
+[Design](/design/)
 
 https://novaglide.techquadbit.net/01-06-2026/my-first-post.html
 

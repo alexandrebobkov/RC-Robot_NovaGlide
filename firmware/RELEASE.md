@@ -36,7 +36,7 @@ Move your NovaGlide firmware (main/, subsystems/, CMakeLists.txt, etc.) into thi
 
 ### 5. Add dependencies
 
-Adds the INA219 sensor driver from the ESP Component Registry and updates your project's dependency file.
+Adds the INA219 and ultrasonic sensor drivers and i2c from the ESP Component Registry and updates your project's dependency file.
 
 ``` sh 
 idf.py add-dependency esp-idf-lib/ina219
@@ -48,28 +48,39 @@ idf.py add-dependency esp-idf-lib/i2cdev
 idf.py add-dependency esp-idf-lib/ultrasonic
 ```
 
-### Build the project
+### 6. Build the project
+
+Compiles the entire firmware, resolves dependencies, and generates the bootloader, partition table, and application binaries.
 
 ``` sh
 idf.py build
 ```
 
-### Flash the firmware
+### 7. Flash the firmware
+
+Uploads the compiled firmware directly to the ESP32-C3 over USB using the ESP-IDF flashing tool.
 
 ``` sh
 idf.py -p PORT flash
 ```
 
-## Flash the firmware from build directory
+## 8. Flash the firmware from build directory
+
+This manually calls esptool using the auto-generated flash arguments from the build system — useful for debugging or scripting.
 
 ``` sh
 python -m esptool --chip esp32c3 -b 460800 --before default_reset --after hard_reset write_flash "@flash_args"
 ```
 
-### Flash the firmware from the repository firmware release directory
+### 9. Flash the firmware from the repository firmware release directory
+
+The general esptool syntax for manually flashing each binary to its correct offset syntax is as follows:
+
 ``` sh
 esptool [--chip] [--port] [--baud] [--before] [--after] [--flash_mode] [--flash_size] [--flash_freq] [bootloader.bin] [partition.bin] [formware.bin]
 ```
+
+This flashes the pre-built release binaries directly from your repository, bypassing the build system — ideal for distributing firmware to users who don't need to compile anything.
 
 ``` sh
 python -m esptool --chip esp32c3 -b 460800 --before default_reset --after hard_reset write_flash 

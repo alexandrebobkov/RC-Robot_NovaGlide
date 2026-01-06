@@ -14,7 +14,7 @@ A modular robot control system for ESP32-C3 with wireless control (ESP-NOW), tel
 ESP-IDF_NovaGlide/
 ├── main/
 │   ├── ESP-IDF_NovaGlide.c    ✅ Main application entry point
-│   ├── system_init.c/h        # System initialization (NVS)
+│   ├── system_init.c/h        #  System initialization (NVS)
 │   ├── scheduler.c/h          ✅ Unified subsystem update loop based on FreeRTOS scheduler
 │   └── control_task.c/h       ✅ RC Robot control task (joystick → motors)
 │
@@ -34,9 +34,9 @@ ESP-IDF_NovaGlide/
     │   └── CMakeLists.txt
     │
     ├── connectivity/          # Wireless communication
-    │   ├── wifi_sys/              # WiFi initialization
+    │   ├── wifi_sys/              #  WiFi initialization
     │   ├── espnow_sys/            ✅ ESP-NOW wireless control
-    │   └── mqtt_sys/              # MQTT telemetry
+    │   └── mqtt_sys/              #  MQTT telemetry
     │
     ├── controls/              # Control algorithms
     │   ├── joystick.c/h           # Joystick mixing algorithm

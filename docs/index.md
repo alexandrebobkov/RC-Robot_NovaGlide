@@ -8,7 +8,7 @@ title: "ESP32-C3 CR Robot | NovaGlide"
 
 A modular robot control system for ESP32-C3 with wireless control (ESP-NOW), telemetry (MQTT), and comprehensive sensor integration.
 
-![NovaGlide Robot](assets/NovaGlide_cover_16-9.jpg)
+![NovaGlide Robot](assets/NovaGlide_cover_16-9_web.jpg)
 
 ## 🏗️ Project Structure
 

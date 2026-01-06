@@ -1,14 +1,14 @@
-title: NovaGlide | ESP32-C3 RC Robot
-description: ESP32 IoT gadgets by Alexander B
+title: "NovaGlide | ESP32-C3 RC Robot"
+description: "ESP32 IoT gadgets by Alexander B"
 show_downloads: true
-google_analytics:
+google_analytics: ""
 theme: jekyll-theme-architect
 # GitHub hosted
 #baseurl: "/ESP32-C3_Breadboard-Adapter" # the subpath of your site, e.g. /blog
 #url: "https://alexandrebobkov.github.io/" # the base hostname & protocol for your site
 # Custom domain name
-baseurl: "/docs"
-url: "https://novaglide.techquadbit.net/" # the base hostname & protocol for your site
+baseurl: ""
+url: "https://novaglide.techquadbit.net" # the base hostname & protocol for your site
 permalink: /:month-:day-:year/:title.html
 
 plugins:

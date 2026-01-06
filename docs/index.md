@@ -8,16 +8,6 @@ title: "ESP32-C3 CR Robot | NovaGlide"
 
 A modular robot control system for ESP32-C3 with wireless control (ESP-NOW), telemetry (MQTT), and comprehensive sensor integration.
 
-[Prime Release](/01-06-2026/first-release.html)
-
-[first release]({% post_url 2026-01-06-first-release %})
-
-[schematic]({% post_url 2026-01-06-hardware %})
-
-[Design](/design/)
-
-https://novaglide.techquadbit.net/01-06-2026/my-first-post.html
-
 ## 🏗️ Project Structure
 
 ```
@@ -279,6 +269,17 @@ I (3456) ULTRASONIC: Distance: 45.23 cm
     </li>
   {% endfor %}
 </ul>
+
+[Prime Release](/01-06-2026/first-release.html)
+
+[first release]({% post_url 2026-01-06-first-release %})
+
+[schematic]({% post_url 2026-01-06-hardware %})
+
+[Design](/design/)
+
+https://novaglide.techquadbit.net/01-06-2026/my-first-post.html
+
 
 ## 👥 Authors
 

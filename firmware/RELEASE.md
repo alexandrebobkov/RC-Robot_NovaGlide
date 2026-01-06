@@ -2,28 +2,42 @@
 
 ### Hrdware Requirements
 
-- Espressif microcontroller ESP32-C3
+This project is designed and optimized for the Espressif microcontroller ESP32-C3
 
-## Flashing the Firmware
+## Creating the Project
 
 ### 1. Create a project
+
+Generates a new ESP-IDF project folder with the standard structure (main/, CMakeLists, etc.) so you have a clean base to copy the source code.
+
 ``` sh
 idf.py create-project ESP-IDF_NovaGlide
 ```
 
 ### 2. Navigate into your project folder
+
+You must be inside the project directory before running any ESP-IDF commands.
+
 ``` sh
 cd ESP-IDF_NovaGlide
 ```
 
 ### 3. Set target microprocessor
+
+This configures the toolchain, compiler flags, and build system specifically for the ESP32-C3 architecture.
+
 ``` sh
 idf.py set-target esp32c3
 ```
 
-### Copy all source files and CMake files for the project
+### 4. Copy all source files and CMake files for the project
 
-### Add dependencies:
+Move your NovaGlide firmware (main/, subsystems/, CMakeLists.txt, etc.) into this project folder so the build system can compile your actual code.
+
+### 5. Add dependencies
+
+Adds the INA219 sensor driver from the ESP Component Registry and updates your project's dependency file.
+
 ``` sh 
 idf.py add-dependency esp-idf-lib/ina219
 ```

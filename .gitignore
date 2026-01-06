@@ -1,0 +1,22 @@
+# ---> esp-idf
+# gitignore template for esp-idf, the official development framework for ESP32
+# https://github.com/espressif/esp-idf
+
+build/
+sdkconfig
+sdkconfig.old
+
+# ---> VisualStudioCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+!.vscode/*.code-snippets
+
+# Local History for Visual Studio Code
+.history/
+
+# Built Visual Studio Code Extensions
+*.vsix
+

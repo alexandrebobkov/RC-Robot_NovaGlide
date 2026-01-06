@@ -36,11 +36,15 @@ idf.py add-dependency esp-idf-lib/ultrasonic
 
 ### Build the project
 
-``` sh idf.py build ```
+``` sh
+idf.py build
+```
 
 ### Flash the firmware
 
-``` sh idf.py -p PORT flash ```
+``` sh
+idf.py -p PORT flash
+```
 
 ## Flash the firmware from build directory
 
@@ -49,8 +53,15 @@ python -m esptool --chip esp32c3 -b 460800 --before default_reset --after hard_r
 ```
 
 ### Flash the firmware from the repository firmware release directory
-``` sh esptool [--chip] [--port] [--baud] [--before] [--after] [--flash_mode] [--flash_size] [--flash_freq] [bootloader.bin] [partition.bin] [formware.bin] ```
 ``` sh
-python -m esptool --chip esp32c3 -b 460800 --before default_reset --after hard_reset write_flash --flash_mode dio --flash_size 2MB --flash_freq 80m 0x0 firmware/release/bootloader.bin 0x8000 firmware/release/partition-table.bin 0x10000 firmware/release/ESP-IDF_NovaGlide.bin
+esptool [--chip] [--port] [--baud] [--before] [--after] [--flash_mode] [--flash_size] [--flash_freq] [bootloader.bin] [partition.bin] [formware.bin]
+```
+
+``` sh
+python -m esptool --chip esp32c3 -b 460800 --before default_reset --after hard_reset write_flash 
+--flash_mode dio --flash_size 2MB --flash_freq 80m 
+0x0 firmware/release/bootloader.bin 
+0x8000 firmware/release/partition-table.bin 
+0x10000 firmware/release/ESP-IDF_NovaGlide.bin
 
 ```

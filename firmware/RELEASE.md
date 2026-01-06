@@ -2,43 +2,91 @@
 
 ### Hrdware Requirements
 
-- Espressif microcontroller ESP32-C3
+This project is designed and optimized for the Espressif microcontroller ESP32-C3
 
-## Flashing the Firmware
+## Creating the Project
 
 ### 1. Create a project
-``` sh idf.py create-project ESP-IDF_NovaGlide ```
+
+Generates a new ESP-IDF project folder with the standard structure (main/, CMakeLists, etc.) so you have a clean base to copy the source code.
+
+``` sh
+idf.py create-project ESP-IDF_NovaGlide
+```
 
 ### 2. Navigate into your project folder
-``` sh cd ESP-IDF_NovaGlide ```
+
+You must be inside the project directory before running any ESP-IDF commands.
+
+``` sh
+cd ESP-IDF_NovaGlide
+```
 
 ### 3. Set target microprocessor
-``` sh idf.py set-target esp32c3 ```
 
-### Copy all source files and CMake files for the project
+This configures the toolchain, compiler flags, and build system specifically for the ESP32-C3 architecture.
 
-### Add dependencies:
-``` sh idf.py add-dependency esp-idf-lib/ina219 ```
-``` sh idf.py add-dependency esp-idf-lib/i2cdev ```
-``` sh idf.py add-dependency esp-idf-lib/ultrasonic ```
+``` sh
+idf.py set-target esp32c3
+```
 
-### Build the project
+### 4. Copy all source files and CMake files for the project
 
-``` sh idf.py build ```
+Move your NovaGlide firmware (main/, subsystems/, CMakeLists.txt, etc.) into this project folder so the build system can compile your actual code.
 
-### Flash the firmware
+### 5. Add dependencies
 
-``` sh idf.py -p PORT flash ```
+Adds the INA219 and ultrasonic sensor drivers and i2c from the ESP Component Registry and updates your project's dependency file.
 
-## Flash the firmware from build directory
+``` sh 
+idf.py add-dependency esp-idf-lib/ina219
+```
+``` sh
+idf.py add-dependency esp-idf-lib/i2cdev
+```
+``` sh
+idf.py add-dependency esp-idf-lib/ultrasonic
+```
+
+### 6. Build the project
+
+Compiles the entire firmware, resolves dependencies, and generates the bootloader, partition table, and application binaries.
+
+``` sh
+idf.py build
+```
+
+### 7. Flash the firmware
+
+Uploads the compiled firmware directly to the ESP32-C3 over USB using the ESP-IDF flashing tool.
+
+``` sh
+idf.py -p PORT flash
+```
+
+## 8. Flash the firmware from build directory
+
+This manually calls esptool using the auto-generated flash arguments from the build system — useful for debugging or scripting.
 
 ``` sh
 python -m esptool --chip esp32c3 -b 460800 --before default_reset --after hard_reset write_flash "@flash_args"
 ```
 
-### Flash the firmware from the repository firmware release directory
-``` sh esptool [--chip] [--port] [--baud] [--before] [--after] [--flash_mode] [--flash_size] [--flash_freq] [bootloader.bin] [partition.bin] [formware.bin] ```
+### 9. Flash the firmware from the repository firmware release directory
+
+The general esptool syntax for manually flashing each binary to its correct offset syntax is as follows:
+
 ``` sh
-python -m esptool --chip esp32c3 -b 460800 --before default_reset --after hard_reset write_flash --flash_mode dio --flash_size 2MB --flash_freq 80m 0x0 firmware/release/bootloader.bin 0x8000 firmware/release/partition-table.bin 0x10000 firmware/release/ESP-IDF_NovaGlide.bin
+esptool [--chip] [--port] [--baud] [--before] [--after] [--flash_mode] [--flash_size] [--flash_freq] [bootloader.bin] [partition.bin] [formware.bin]
+```
+
+This flashes the pre-built release binaries directly from your repository, bypassing the build system — ideal for distributing firmware to users who don't need to compile anything.
+
+``` sh
+python -m esptool --chip esp32c3 -b 460800 --before default_reset --after hard_reset write_flash 
+--flash_mode dio --flash_size 2MB --flash_freq 80m 
+0x0 firmware/release/bootloader.bin 
+0x8000 firmware/release/partition-table.bin 
+0x10000 firmware/release/ESP-IDF_NovaGlide.bin
 
 ```

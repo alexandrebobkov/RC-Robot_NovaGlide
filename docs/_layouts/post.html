@@ -1,22 +1,7 @@
 ---
 layout: default
 ---
-
-<article class="post">
-  <header class="post-header">
-    <h1>{{ page.title }}</h1>
-    <p class="post-meta">
-      <time datetime="{{ page.date | date_to_xmlschema }}">
-        {{ page.date | date: "%B %d, %Y" }}
-      </time>
-    </p>
-  </header>
-
-  <div class="post-content">
-    {{ content }}
-  </div>
-
-  <footer class="post-footer">
-    <p><a href="/">← Back to Home</a></p>
-  </footer>
-</article>
+<h1>{{ page.title }}</h1>
+<p><em>{{ page.date | date: "%B %d, %Y" }}</em></p>
+{{ content }}
+<p><a href="/">← Back to Home</a></p>

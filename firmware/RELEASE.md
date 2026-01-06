@@ -7,20 +7,32 @@
 ## Flashing the Firmware
 
 ### 1. Create a project
-``` sh idf.py create-project ESP-IDF_NovaGlide ```
+``` sh
+idf.py create-project ESP-IDF_NovaGlide
+```
 
 ### 2. Navigate into your project folder
-``` sh cd ESP-IDF_NovaGlide ```
+``` sh
+cd ESP-IDF_NovaGlide
+```
 
 ### 3. Set target microprocessor
-``` sh idf.py set-target esp32c3 ```
+``` sh
+idf.py set-target esp32c3
+```
 
 ### Copy all source files and CMake files for the project
 
 ### Add dependencies:
-``` sh idf.py add-dependency esp-idf-lib/ina219 ```
-``` sh idf.py add-dependency esp-idf-lib/i2cdev ```
-``` sh idf.py add-dependency esp-idf-lib/ultrasonic ```
+``` sh 
+idf.py add-dependency esp-idf-lib/ina219
+```
+``` sh
+idf.py add-dependency esp-idf-lib/i2cdev
+```
+``` sh
+idf.py add-dependency esp-idf-lib/ultrasonic
+```
 
 ### Build the project
 

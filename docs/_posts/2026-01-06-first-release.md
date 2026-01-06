@@ -1,5 +1,5 @@
 ---
-layout: post
+layout: default
 title: "RC Robot Prime Release"
 date: 2026-01-06
 categories: robotics esp32c3

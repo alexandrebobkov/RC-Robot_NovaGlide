@@ -4,6 +4,4 @@ title: Design
 permalink: /design/
 ---
 
-# Schematic
-
-# Bill of Materials
+![NovaGlide Robot](assets/NovaGlide_specs_background.jpg)

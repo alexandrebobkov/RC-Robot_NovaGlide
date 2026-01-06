@@ -266,6 +266,16 @@ I (3456) ULTRASONIC: Distance: 45.23 cm
 - `esp-idf-lib/ina219`      - INA219 power monitor
 - `esp-idf-lib/ultrasonic`  - HC-SR04 ultrasonic sensor
 
+## Recent Posts
+
+<ul>
+  {% for post in site.posts limit:5 %}
+    <li>
+      <a href="{{ post.url }}">{{ post.title }}</a> - {{ post.date | date: "%B %d, %Y" }}
+    </li>
+  {% endfor %}
+</ul>
+
 ## 👥 Authors
 
 Alexander Bobkov

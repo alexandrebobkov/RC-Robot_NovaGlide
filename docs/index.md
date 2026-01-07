@@ -1,6 +1,6 @@
 ---
 layout: default
-title: "ESP32-C3 CR Robot | NovaGlide"
+title: "ESP32-C3 RC Robot | NovaGlide"
 ---
 
 {{ page.title }}

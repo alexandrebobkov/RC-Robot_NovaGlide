@@ -1,3 +1,5 @@
+# main source code
+
 ## ESP-IDF_NovaGlide.c
 
 ``` c
@@ -139,4 +141,388 @@ void app_main(void)
     scheduler_init(&sched);
     scheduler_start(&sched);
 }
+```
+
+## control_task.c
+
+``` c
+#include "control_task.h"
+#include "joystick.h"
+#include "esp_log.h"
+
+static const char *TAG = "CONTROL";
+
+typedef struct {
+    motor_system_t *motors;
+    espnow_system_t *espnow;
+} control_context_t;
+
+static joystick_hal_t js;
+
+static void control_task(void *arg) {
+    control_context_t *ctx = (control_context_t *)arg;
+    int pwm_left = 0;
+    int pwm_right = 0;
+
+    ESP_LOGI(TAG, "Control task started");
+
+    // Initialize joystick HAL
+    joystick_hal_init(&js);
+
+    while (1) {
+        // 1. Read raw joystick values from ESP-NOW
+        int32_t rc_x = ctx->espnow->last_data.x_axis;
+        int32_t rc_y = ctx->espnow->last_data.y_axis;
+
+        // 2. Update joystick HAL (auto-calibration + normalization)
+        js.update(&js, rc_x, rc_y);
+
+        // 3. Mix normalized joystick values into motor PWM
+        joystick_mix(js.norm_y, js.norm_x, &pwm_left, &pwm_right);
+
+        // 4. Apply PWM to motors
+        update_motors_pwm(ctx->motors, pwm_left, pwm_right);
+
+        // 5. Debug output
+        ESP_LOGI(TAG,
+                 "RC raw=(%ld,%ld) norm=(%.2f,%.2f) PWM(L,R)=(%d,%d)",
+                 (long)rc_x, (long)rc_y,
+                 js.norm_x, js.norm_y,
+                 pwm_left, pwm_right);
+
+        vTaskDelay(pdMS_TO_TICKS(50));  // 20Hz control loop
+    }
+}
+
+void control_task_start(motor_system_t *motors, espnow_system_t *espnow) {
+    static control_context_t ctx;
+    ctx.motors = motors;
+    ctx.espnow = espnow;
+
+    xTaskCreate(control_task, "control", 4096, &ctx, 15, NULL);
+    ESP_LOGI(TAG, "Control task created");
+}
+```
+
+## control_task.h
+
+``` c
+#ifndef CONTROL_TASK_H
+#define CONTROL_TASK_H
+
+#include "motors.h"
+#include "espnow_sys.h"
+
+void control_task_start(motor_system_t *motors, espnow_system_t *espnow);
+
+#endif
+```
+
+## dashboard.c
+
+``` c
+// dashboard.c
+#include "dashboard.h"
+#include "ultrasonic_sensor.h"
+#include <stdio.h>
+#include "esp_log.h"
+
+// ANSI escape codes for terminal control
+#define CLEAR_SCREEN "\033[2J"
+#define CURSOR_HOME "\033[H"
+#define CURSOR_HIDE "\033[?25l"
+#define CURSOR_SHOW "\033[?25h"
+#define COLOR_RESET "\033[0m"
+#define COLOR_GREEN "\033[32m"
+#define COLOR_YELLOW "\033[33m"
+#define COLOR_CYAN "\033[36m"
+#define COLOR_RED "\033[31m"
+#define COLOR_BLUE "\033[34m"
+#define COLOR_MAGENTA "\033[35m"
+#define BOLD "\033[1m"
+
+static void draw_box(const char *title) {
+    printf("╔════════════════════════════════════════════════════════════╗\n");
+    printf("║ " COLOR_CYAN BOLD "%-58s" COLOR_RESET " ║\n", title);
+    printf("╠════════════════════════════════════════════════════════════╣\n");
+}
+
+static void draw_line(const char *label, const char *value, const char *color) {
+    printf("║ " BOLD "%-20s" COLOR_RESET " : %s%-33s" COLOR_RESET "   ║\n", label, color, value);
+}
+
+static void draw_separator() {
+    printf("╠════════════════════════════════════════════════════════════╣\n");
+}
+
+static void draw_bottom() {
+    printf("╚════════════════════════════════════════════════════════════╝\n");
+}
+
+static void dashboard_task(void *arg) {
+    dashboard_context_t *ctx = (dashboard_context_t *)arg;
+    char buffer[50];
+
+    // Hide cursor for cleaner display
+    printf(CURSOR_HIDE);
+
+    // Print help text ONCE before the loop
+    printf("\n" COLOR_YELLOW "Dashboard Mode: Press Ctrl+] to exit monitor" COLOR_RESET "\n");
+    vTaskDelay(pdMS_TO_TICKS(2000));  // Give user time to read
+
+
+    while (1) {
+        // Clear screen and move cursor to home
+        printf(CLEAR_SCREEN CURSOR_HOME);
+
+        // ========== HEADER ==========
+        draw_box("ESP32-C3 ROBOT CONTROL DASHBOARD");
+
+        // ========== ESP-NOW SECTION ==========
+        snprintf(buffer, sizeof(buffer), "%d", ctx->espnow->last_data.x_axis);
+        draw_line("Joystick X", buffer, COLOR_GREEN);
+
+        snprintf(buffer, sizeof(buffer), "%d", ctx->espnow->last_data.y_axis);
+        draw_line("Joystick Y", buffer, COLOR_GREEN);
+
+        draw_separator();
+
+        // ========== MOTORS SECTION ==========
+        snprintf(buffer, sizeof(buffer), "%d", ctx->motors->left_pwm);
+        draw_line("PWM Left", buffer, COLOR_YELLOW);
+
+        snprintf(buffer, sizeof(buffer), "%d", ctx->motors->right_pwm);
+        draw_line("PWM Right", buffer, COLOR_YELLOW);
+
+        draw_separator();
+
+        snprintf(buffer, sizeof(buffer), "%d", ctx->motors->motor1_rpm_pcm);
+        draw_line("Motor 1 (L-Fwd)", buffer,
+                  ctx->motors->motor1_rpm_pcm > 0 ? COLOR_GREEN : COLOR_RESET);
+
+        snprintf(buffer, sizeof(buffer), "%d", ctx->motors->motor2_rpm_pcm);
+        draw_line("Motor 2 (R-Fwd)", buffer,
+                  ctx->motors->motor2_rpm_pcm > 0 ? COLOR_GREEN : COLOR_RESET);
+
+        snprintf(buffer, sizeof(buffer), "%d", ctx->motors->motor3_rpm_pcm);
+        draw_line("Motor 3 (L-Rev)", buffer,
+                  ctx->motors->motor3_rpm_pcm > 0 ? COLOR_RED : COLOR_RESET);
+
+        snprintf(buffer, sizeof(buffer), "%d", ctx->motors->motor4_rpm_pcm);
+        draw_line("Motor 4 (R-Rev)", buffer,
+                  ctx->motors->motor4_rpm_pcm > 0 ? COLOR_RED : COLOR_RESET);
+
+        draw_separator();
+
+        // ========== SENSORS SECTION ==========
+        snprintf(buffer, sizeof(buffer), "%.2f °C", ctx->temp->temperature);
+        draw_line("Temperature", buffer, COLOR_CYAN);
+
+        snprintf(buffer, sizeof(buffer), "%.2f V", ctx->ina->bus_voltage);
+        draw_line("Battery Voltage", buffer,
+                  ctx->ina->bus_voltage > 7.0 ? COLOR_GREEN : COLOR_RED);
+
+        snprintf(buffer, sizeof(buffer), "%.2f mA", ctx->ina->current * 1000.0f);
+        draw_line("Current", buffer, COLOR_MAGENTA);
+
+        snprintf(buffer, sizeof(buffer), "%.2f mW", ctx->ina->power * 1000.0f);
+        draw_line("Power", buffer, COLOR_BLUE);
+
+        draw_separator();
+
+        snprintf(buffer, sizeof(buffer), "%.2f cm", ctx->ultrasonic->distance_cm / 10.0f);
+        draw_line("Distance", buffer, COLOR_BLUE);
+
+        draw_bottom();
+
+        // Status bar at bottom
+        //printf("\n" COLOR_YELLOW "Press Ctrl+] to exit monitor" COLOR_RESET "\n");
+
+        // Update every 200ms for smooth display
+        vTaskDelay(pdMS_TO_TICKS(1000));
+    }
+
+    // Show cursor on exit (won't actually run due to while loop)
+    printf(CURSOR_SHOW);
+}
+
+void dashboard_task_start(dashboard_context_t *ctx) {
+    xTaskCreate(dashboard_task, "dashboard", 4096, ctx, 6, NULL);
+    ESP_LOGI("DASHBOARD", "Dashboard display started");
+}
+```
+
+## dashboard.h
+
+``` c
+// dashboard.h
+#ifndef DASHBOARD_H
+#define DASHBOARD_H
+
+#include "freertos/FreeRTOS.h"
+#include "motors.h"
+#include "espnow_sys.h"
+#include "temp_sensor.h"
+#include "ina219_sensor.h"
+#include "ultrasonic_sensor.h"
+
+typedef struct {
+    motor_system_t *motors;
+    espnow_system_t *espnow;
+    temp_sensor_system_t *temp;
+    ina219_system_t *ina;
+    ultrasonic_system_t *ultrasonic;
+} dashboard_context_t;
+
+void dashboard_task_start(dashboard_context_t *ctx);
+
+#endif
+```
+
+## scheduler.c
+
+``` c
+#include "scheduler.h"
+#include "esp_log.h"
+
+static const char *TAG = "SCHEDULER";
+
+static void scheduler_task(void *arg) {
+    scheduler_t *sched = (scheduler_t *)arg;
+
+    ESP_LOGI(TAG, "Scheduler task started");
+
+    while (1) {
+        TickType_t now = xTaskGetTickCount();
+
+        // Update all subsystems
+        if (sched->motors && sched->motors->update) {
+            sched->motors->update(sched->motors, now);
+        }
+        if (sched->adc && sched->adc->update) {
+            sched->adc->update(sched->adc, now);
+        }
+        if (sched->temp && sched->temp->update) {
+            sched->temp->update(sched->temp, now);
+        }
+        if (sched->ina && sched->ina->update) {
+            sched->ina->update(sched->ina, now);
+        }
+        if (sched->ultra && sched->ultra->update) {
+            sched->ultra->update(sched->ultra, now);
+        }
+        if (sched->mqtt && sched->mqtt->update) {
+            sched->mqtt->update(sched->mqtt, now);
+        }
+        if (sched->espnow && sched->espnow->update) {
+            sched->espnow->update(sched->espnow, now);
+        }
+        if (sched->ui && sched->ui->update) {
+            sched->ui->update(sched->ui, now);
+        }
+
+        vTaskDelay(pdMS_TO_TICKS(250));  // 20Hz update rate
+    }
+}
+
+void scheduler_init(scheduler_t *sched) {
+    ESP_LOGI(TAG, "Scheduler initialized");
+}
+
+void scheduler_start(scheduler_t *sched) {
+    xTaskCreate(scheduler_task, "scheduler", 8192, sched, 10, NULL);
+    ESP_LOGI(TAG, "Scheduler started");
+}
+```
+
+## scheduler.h
+
+``` c
+#ifndef SCHEDULER_H
+#define SCHEDULER_H
+
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "motors.h"
+#include "adc.h"
+#include "temp_sensor.h"
+#include "ina219_sensor.h"
+#include "ultrasonic_sensor.h"
+#include "mqtt_sys.h"
+#include "espnow_sys.h"
+#include "ui.h"
+
+typedef struct {
+    motor_system_t *motors;
+    adc_system_t *adc;
+    temp_sensor_system_t *temp;
+    ina219_system_t *ina;
+    ultrasonic_system_t *ultra;
+    mqtt_system_t *mqtt;
+    espnow_system_t *espnow;
+    ui_system_t *ui;
+} scheduler_t;
+
+void scheduler_init(scheduler_t *sched);
+void scheduler_start(scheduler_t *sched);
+
+#endif
+```
+
+## system_init.c
+
+``` c
+#include "system_init.h"
+#include "nvs_flash.h"
+#include "esp_log.h"
+
+static const char *TAG = "SYSTEM_INIT";
+
+void system_init(void) {
+    // Initialize NVS
+    esp_err_t ret = nvs_flash_init();
+    if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
+        ESP_ERROR_CHECK(nvs_flash_erase());
+        ret = nvs_flash_init();
+    }
+    ESP_ERROR_CHECK(ret);
+
+    ESP_LOGI(TAG, "System initialization complete");
+}
+```
+
+## system_init.h
+
+``` c
+#ifndef SYSTEM_INIT_H
+#define SYSTEM_INIT_H
+
+void system_init(void);
+
+#endif
+```
+
+## CMakeLists.txt
+
+``` c
+idf_component_register(
+    SRCS "ESP-IDF_NovaGlide.c"
+         "system_init.c"
+         "scheduler.c"
+         "control_task.c"
+         "dashboard.c"
+    INCLUDE_DIRS "."
+    REQUIRES
+        esp_wifi
+        esp_netif
+        nvs_flash
+        motors
+        adc
+        wifi_sys
+        mqtt_sys
+        espnow_sys
+        sensors
+        controls
+        ui
+        i2c_bus)
 ```

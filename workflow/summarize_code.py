@@ -3,7 +3,7 @@ import os
 import re
 from pathlib import Path
 
-def create_mega_markdown(output_file="CODE_STRUCTURE.md", base_dirs=["main", "subsystem"]):
+def create_mega_markdown(output_file="CODE_STRUCTURE.md", base_dirs=["main", "subsystems"]):
     """
     Scan through specified directories and create a comprehensive markdown file
     with all source code files organized by their directory structure.
@@ -21,7 +21,7 @@ def create_mega_markdown(output_file="CODE_STRUCTURE.md", base_dirs=["main", "su
         for base_dir in base_dirs:
             for root, _, files in os.walk(base_dir):
                 for file in sorted(files):
-                    if file.endswith(('.c', '.h')):
+                    if file.endswith(('.c', '.h', '.txt')):
                         # Get relative path
                         rel_path = os.path.relpath(root, start=".")
                         if rel_path == ".":

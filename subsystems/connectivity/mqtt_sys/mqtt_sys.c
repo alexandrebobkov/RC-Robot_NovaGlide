@@ -9,6 +9,7 @@ static void mqtt_publish_task(void *arg) {
 
     char temp_str[16], volt_str[16], curr_str[16], pwr_str[16];
     char pwm_l_str[16], pwm_r_str[16];
+    char prox_str[16];
 
     while (1) {
         snprintf(temp_str, sizeof(temp_str), "%.2f", sys->temp_value);
@@ -17,6 +18,7 @@ static void mqtt_publish_task(void *arg) {
         snprintf(pwr_str, sizeof(pwr_str), "%.2f", sys->sys_power);
         snprintf(pwm_l_str, sizeof(pwm_l_str), "%d", sys->pwm_left);
         snprintf(pwm_r_str, sizeof(pwm_r_str), "%d", sys->pwm_right);
+        snprintf(prox_str, sizeof(prox_str), "%.2f", sys->proximity);
 
         esp_mqtt_client_publish(sys->client, "/bitrider/temp", temp_str, 0, 1, 0);
         esp_mqtt_client_publish(sys->client, "/bitrider/battery_voltage", volt_str, 0, 1, 0);
@@ -24,6 +26,7 @@ static void mqtt_publish_task(void *arg) {
         esp_mqtt_client_publish(sys->client, "/bitrider/sys_power", pwr_str, 0, 1, 0);
         esp_mqtt_client_publish(sys->client, "/bitrider/pwm_left", pwm_l_str, 0, 1, 0);
         esp_mqtt_client_publish(sys->client, "/bitrider/pwm_right", pwm_r_str, 0, 1, 0);
+        esp_mqtt_client_publish(sys->client, "/bitrider/proximity", prox_str, 0, 1, 0);
 
         vTaskDelay(pdMS_TO_TICKS(1000));
     }
@@ -62,6 +65,7 @@ void mqtt_system_init(mqtt_system_t *sys) {
     sys->pwm_left = 0;
     sys->pwm_right = 0;
     sys->client = NULL;
+    sys->proximity = 0.0f;
     sys->update = mqtt_update_impl;
 
     esp_mqtt_client_config_t mqtt_cfg = {
@@ -94,4 +98,8 @@ void mqtt_update_power(mqtt_system_t *sys, float power) {
 void mqtt_update_pwm(mqtt_system_t *sys, int left, int right) {
     sys->pwm_left = left;
     sys->pwm_right = right;
+}
+
+void mqtt_update_proximity(mqtt_system_t *sys, float proximity) {
+    sys->proximity = proximity;
 }

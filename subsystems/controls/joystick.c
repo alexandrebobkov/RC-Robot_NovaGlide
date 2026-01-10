@@ -200,8 +200,8 @@ void joystick_hal_update(joystick_hal_t *js, int32_t x_raw, int32_t y_raw)
     // ═══════════════════════════════════════════════════════════
     // Different deadband thresholds for X and Y axes
 
-    const float deadband_x = 0.15f;  // 15% steering deadband (wide zone)
-    const float deadband_y = 0.08f;  // 8% throttle deadband (narrow zone)
+    const float deadband_x = 0.10f;  // 15% steering deadband (wide zone) 0.15
+    const float deadband_y = 0.08f;  // 8% throttle deadband (narrow zone) 0.08
 
     // Why 15% for X (steering)?
     // - Steering is very sensitive to drift
@@ -353,7 +353,7 @@ void joystick_mix(float x, float y, int *pwm_left, int *pwm_right)
     // ═══════════════════════════════════════════════════════════
     // STEP 2: Steering Gain
     // ═══════════════════════════════════════════════════════════
-    const float k = 0.9f;
+    const float k = 0.73f; //0.9
 
     // Steering gain (k) controls turn aggressiveness:
     //
@@ -388,7 +388,7 @@ void joystick_mix(float x, float y, int *pwm_left, int *pwm_right)
     // STEP 4: Arc Limiting (Differential Limiter)
     // ═══════════════════════════════════════════════════════════
     float diff = fabsf(L0 - R0);
-    float max_diff = 1.7f;
+    float max_diff = 1.7f; //1.7
 
     // Why Limit the Differential?
     //

@@ -7,11 +7,9 @@ categories: robotics
 
 # Mathematics Behind RC Joystick Control
 
-# Joystick Control System: Mathematics & Implementation
-
 ## Overview
 
-This document provides the complete mathematical formulation of the joystick-to-motor control pipeline alongside the actual C implementation, showing the direct correspondence between theory and practice.
+This post covers the complete mathematical formulation of the joystick-to-motor control pipeline alongside the actual C implementation, showing the direct correspondence between theory and practice.
 
 ---
 

@@ -39,12 +39,19 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base,
 
     switch ((esp_mqtt_event_id_t)event_id) {
         case MQTT_EVENT_CONNECTED:
-            ESP_LOGI(TAG, "MQTT Connected");
+            ESP_LOGI(TAG, "MQTT Connected successfully");
+            ESP_LOGI(TAG, "Session present: %d", event->session_present);
             sys->client = event->client;
             xTaskCreate(mqtt_publish_task, "mqtt_pub", 4096, sys, 5, NULL);
             break;
         case MQTT_EVENT_DISCONNECTED:
             ESP_LOGI(TAG, "MQTT Disconnected");
+            break;
+        case MQTT_EVENT_ERROR:
+            ESP_LOGE(TAG, "MQTT Error: %.*s", event->error_handle->error_type, event->error_handle->error_data);
+            if (event->error_handle->error_type == MQTT_ERROR_TYPE_TCP_TRANSPORT) {
+                ESP_LOGE(TAG, "TCP Transport error - check broker address and network connection");
+            }
             break;
         default:
             break;
@@ -70,13 +77,26 @@ void mqtt_system_init(mqtt_system_t *sys) {
 
     esp_mqtt_client_config_t mqtt_cfg = {
         .broker.address.uri = MQTT_BROKER_URI,
+        .credentials.username = MQTT_USERNAME,
+        .credentials.authentication.password = MQTT_PASSWORD,
     };
 
     esp_mqtt_client_handle_t client = esp_mqtt_client_init(&mqtt_cfg);
-    esp_mqtt_client_register_event(client, ESP_EVENT_ANY_ID, mqtt_event_handler, sys);
-    esp_mqtt_client_start(client);
+    if (client == NULL) {
+        ESP_LOGE(TAG, "Failed to initialize MQTT client");
+        return;
+    }
 
-    ESP_LOGI(TAG, "MQTT system initialized");
+    esp_mqtt_client_register_event(client, ESP_EVENT_ANY_ID, mqtt_event_handler, sys);
+    esp_err_t err = esp_mqtt_client_start(client);
+    if (err != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to start MQTT client: %s", esp_err_to_name(err));
+        return;
+    }
+
+    ESP_LOGI(TAG, "MQTT system initialized with authentication");
+    ESP_LOGI(TAG, "Broker: %s", MQTT_BROKER_URI);
+    ESP_LOGI(TAG, "Username: %s", MQTT_USERNAME);
 }
 
 void mqtt_update_temp(mqtt_system_t *sys, float temp) {

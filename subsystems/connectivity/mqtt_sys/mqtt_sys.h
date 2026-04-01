@@ -4,7 +4,9 @@
 #include "freertos/FreeRTOS.h"
 #include "mqtt_client.h"
 
-#define MQTT_BROKER_URI "mqtt://74.14.210.168"
+#define MQTT_BROKER_URI "mqtt://74.14.211.215"
+#define MQTT_USERNAME "node"
+#define MQTT_PASSWORD "espressif"
 #define WIFI_SSID "IoT_bots"
 #define WIFI_PASSWORD "208208208"
 

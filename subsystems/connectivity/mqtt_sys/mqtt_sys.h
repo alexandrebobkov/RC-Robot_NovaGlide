@@ -5,8 +5,8 @@
 #include "mqtt_client.h"
 
 #define MQTT_BROKER_URI "mqtt://74.14.211.215"
-#define MQTT_USERNAME "node"
-#define MQTT_PASSWORD "espressif"
+#define MQTT_USERNAME "novaglide"
+#define MQTT_PASSWORD "novaglide"
 #define WIFI_SSID "IoT_bots"
 #define WIFI_PASSWORD "208208208"
 

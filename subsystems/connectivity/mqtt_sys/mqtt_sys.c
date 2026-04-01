@@ -48,9 +48,16 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base,
             ESP_LOGI(TAG, "MQTT Disconnected");
             break;
         case MQTT_EVENT_ERROR:
-            ESP_LOGE(TAG, "MQTT Error: %.*s", event->error_handle->error_type, event->error_handle->error_data);
+            ESP_LOGE(TAG, "MQTT error type: %d", event->error_handle->error_type);
             if (event->error_handle->error_type == MQTT_ERROR_TYPE_TCP_TRANSPORT) {
-                ESP_LOGE(TAG, "TCP Transport error - check broker address and network connection");
+                ESP_LOGE(TAG, "  esp-tls error: 0x%x", event->error_handle->esp_tls_last_esp_err);
+                ESP_LOGE(TAG, "  tls stack error: 0x%x", event->error_handle->esp_tls_stack_err);
+                ESP_LOGE(TAG, "  socket errno: %d (%s)",
+                event->error_handle->esp_transport_sock_errno,
+                strerror(event->error_handle->esp_transport_sock_errno));
+            } else if (event->error_handle->error_type == MQTT_ERROR_TYPE_CONNECTION_REFUSED) {
+                ESP_LOGE(TAG, "  connection refused, return code: %d",
+                event->error_handle->connect_return_code);
             }
             break;
         default:

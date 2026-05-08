@@ -4,7 +4,8 @@
 #include "freertos/FreeRTOS.h"
 #include "mqtt_client.h"
 
-#define MQTT_BROKER_URI "mqtt://74.14.211.215"
+//#define MQTT_BROKER_URI "mqtt://74.14.211.215"
+#define MQTT_BROKER_URI "mqtt://techquadbit.net"
 #define MQTT_USERNAME "novaglide"
 #define MQTT_PASSWORD "novaglide"
 #define WIFI_SSID "IoT_bots"

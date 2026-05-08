@@ -1,6 +1,7 @@
 // dashboard.c
 #include "dashboard.h"
 #include "ultrasonic_sensor.h"
+#include "joystick.h"
 #include <stdio.h>
 #include "esp_log.h"
 
@@ -56,11 +57,44 @@ static void dashboard_task(void *arg) {
         draw_box("ESP32-C3 ROBOT CONTROL DASHBOARD");
 
         // ========== ESP-NOW SECTION ==========
+        draw_line("ESP-NOW JOYSTICK DATA", "RAW VALUES", COLOR_CYAN);
+
         snprintf(buffer, sizeof(buffer), "%d", ctx->espnow->last_data.x_axis);
-        draw_line("Joystick X", buffer, COLOR_GREEN);
+        draw_line("Joystick X (Raw)", buffer, COLOR_GREEN);
 
         snprintf(buffer, sizeof(buffer), "%d", ctx->espnow->last_data.y_axis);
-        draw_line("Joystick Y", buffer, COLOR_GREEN);
+        draw_line("Joystick Y (Raw)", buffer, COLOR_GREEN);
+
+        // Add visual representation of joystick position
+        draw_line("Joystick Position", "", COLOR_CYAN);
+        printf("║ " BOLD "%-20s" COLOR_RESET " : ", "Visual");
+        // Scale down large values for percentage calculation
+        // Assuming typical range is around the center values from joystick.h
+        float x_scaled = ((float)ctx->espnow->last_data.x_axis - JS_CENTER_X) / JS_RANGE_X * 100.0f;
+        float y_scaled = ((float)ctx->espnow->last_data.y_axis - JS_CENTER_Y) / JS_RANGE_Y * 100.0f;
+        printf("X: %.1f%% Y: %.1f%%", x_scaled, y_scaled);
+
+        // Draw a simple joystick position indicator based on scaled values
+        // Note: Swapped X and Y interpretations to match robot behavior
+        if (y_scaled > 5.0f && x_scaled > 5.0f)
+            printf(" " COLOR_GREEN "↗ (Forward-Right)" COLOR_RESET);
+        else if (y_scaled > 5.0f && x_scaled < -5.0f)
+            printf(" " COLOR_GREEN "↖ (Forward-Left)" COLOR_RESET);
+        else if (y_scaled < -5.0f && x_scaled > 5.0f)
+            printf(" " COLOR_RED "↘ (Reverse-Right)" COLOR_RESET);
+        else if (y_scaled < -5.0f && x_scaled < -5.0f)
+            printf(" " COLOR_RED "↙ (Reverse-Left)" COLOR_RESET);
+        else if (x_scaled > 5.0f)
+            printf(" " COLOR_GREEN "↑ (Forward)" COLOR_RESET);
+        else if (x_scaled < -5.0f)
+            printf(" " COLOR_RED "↓ (Reverse)" COLOR_RESET);
+        else if (y_scaled > 5.0f)
+            printf(" " COLOR_YELLOW "→ (Right)" COLOR_RESET);
+        else if (y_scaled < -5.0f)
+            printf(" " COLOR_YELLOW "← (Left)" COLOR_RESET);
+        else
+            printf(" " COLOR_CYAN "• (Centered)" COLOR_RESET);
+        printf("%-17s   ║\n", "");
 
         draw_separator();
 

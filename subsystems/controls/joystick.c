@@ -373,8 +373,9 @@ void joystick_mix(float x, float y, int *pwm_left, int *pwm_right)
     // ═══════════════════════════════════════════════════════════
     // STEP 3: Differential Mixing
     // ═══════════════════════════════════════════════════════════
-    float L0 = y + k * x_shaped;
-    float R0 = y - k * x_shaped;
+    // Invert Y-axis to match physical joystick direction
+    float L0 = -y + k * x_shaped;
+    float R0 = -y - k * x_shaped;
 
     // Classic Tank Drive Formula:
     // - Both motors get the Y (throttle) component equally
@@ -444,4 +445,5 @@ void joystick_mix(float x, float y, int *pwm_left, int *pwm_right)
     // - Positive = forward
     // - Negative = reverse
     // - Magnitude = speed (0 = stop, 8190 = full speed)
+    // Note: Y-axis is inverted to match physical joystick direction
 }

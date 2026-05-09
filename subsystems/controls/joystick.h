@@ -5,10 +5,10 @@
 #include <stdbool.h>
 #include <math.h>
 
-#define JS_CENTER_X  106561536.0f   // calibrated center X position
-#define JS_CENTER_Y  112066560.0f   // calibrated center Y position
-#define JS_RANGE_X   50000000.0f   // adjusted to match actual joystick range
-#define JS_RANGE_Y   50000000.0f   // adjusted to match actual joystick range
+#define JS_CENTER_X  70778880.0f   // calibrated center X position
+#define JS_CENTER_Y  74252288.0f   // calibrated center Y position
+#define JS_RANGE_X   70582272.0f   // adjusted to fully utilize forward position
+#define JS_RANGE_Y   78577664.0f   // matched to X-range for consistent behavior
 
 
 typedef struct joystick_hal_t joystick_hal_t;

@@ -5,9 +5,13 @@
 #include <stdbool.h>
 #include <math.h>
 
+/*
+ * The variable values are tuned for Vcc 3.3V, joystick maximum voltage is at Vcc/2.
+ */
+
 #define JS_CENTER_X  70778880.0f   // calibrated center X position
 #define JS_CENTER_Y  74252288.0f   // calibrated center Y position
-#define JS_RANGE_X   70582272.0f   // adjusted to fully utilize forward position
+#define JS_RANGE_X   78643200.0f   // adjusted to fully utilize left and right movements
 #define JS_RANGE_Y   78577664.0f   // matched to X-range for consistent behavior
 
 
